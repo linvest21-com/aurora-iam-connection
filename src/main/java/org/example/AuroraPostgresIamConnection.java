@@ -2,7 +2,9 @@ package org.example;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
@@ -46,7 +48,36 @@ public class AuroraPostgresIamConnection {
 			
 			// Connect to the database
 			connection = DriverManager.getConnection(jdbcUrl, props);
+
 			System.out.println("Successfully connected to the database!");
+
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+            
+            // Query to get columns from the 'my_schema' schema and 'students' table
+            String query = "SELECT column_name, data_type, is_nullable, column_default " +
+                           "FROM information_schema.columns " +
+                           "WHERE table_schema = 'my_schema' AND table_name = 'students'";
+            
+            // Execute the query
+            ResultSet rs = stmt.executeQuery(query);
+            
+            // Print out column details
+            System.out.println("Columns in the 'students' table:");
+            while (rs.next()) {
+                String columnName = rs.getString("column_name");
+                String dataType = rs.getString("data_type");
+                String isNullable = rs.getString("is_nullable");
+                String columnDefault = rs.getString("column_default");
+                
+                System.out.println("Column Name: " + columnName);
+                System.out.println("Data Type: " + dataType);
+                System.out.println("Is Nullable: " + isNullable);
+                System.out.println("Default Value: " + columnDefault);
+                System.out.println("-----------");
+            }			
+
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
